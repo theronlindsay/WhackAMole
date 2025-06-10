@@ -3,41 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bug Bash!</title>
-  <style>
-    body {
-      font-family: 'Courier New', monospace;
-      background-color: #111;
-      color: #90ee90;
-      text-align: center;
+  <title>Bug Bash!</title>  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+    
+    * {
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Orbitron', monospace;
+      background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+      color: #00ff88;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
     }
 
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 900;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 20px #00ff88, 0 0 40px #00ff88, 0 0 60px #00ff88;
+      letter-spacing: 3px;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 20px #00ff88, 0 0 40px #00ff88, 0 0 60px #00ff88; }
+      to { text-shadow: 0 0 30px #00ff88, 0 0 60px #00ff88, 0 0 90px #00ff88; }
     }
 
     .score-timer {
       display: flex;
       justify-content: space-between;
       max-width: 400px;
-      margin: 0 auto 20px;
+      width: 100%;
+      margin: 0 auto 2rem;
       font-size: 1.2em;
+      font-weight: 700;
+      background: rgba(0, 255, 136, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 15px;
+      padding: 1rem 2rem;
+      box-shadow: 0 8px 32px rgba(0, 255, 136, 0.1);
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(4, 80px);
-      grid-gap: 15px;
+      grid-template-columns: repeat(4, minmax(60px, 10vw));
+      grid-gap: 2vw;
       justify-content: center;
+      margin: 2rem 0;
     }
 
     .hole {
-      width: 80px;
-      height: 80px;
-      border: 2px solid #90ee90;
+      width: min(80px, 10vw);
+      height: min(80px, 10vw);
+      border: 2px solid #00ff88;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -45,20 +86,127 @@
       font-size: 2em;
       cursor: pointer;
       position: relative;
+      user-select: none;
+      transition: all 0.3s ease;
+      background: rgba(0, 255, 136, 0.05);
+      backdrop-filter: blur(5px);
+      box-shadow: 
+        0 0 20px rgba(0, 255, 136, 0.2),
+        inset 0 0 20px rgba(0, 255, 136, 0.1);
+    }
+
+    .hole:hover {
+      border-color: #00ff88;
+      box-shadow: 
+        0 0 30px rgba(0, 255, 136, 0.4),
+        inset 0 0 30px rgba(0, 255, 136, 0.2);
+      transform: scale(1.05);
+    }
+
+    .hole:active {
+      transform: scale(1.2);
+      box-shadow: 
+        0 0 40px rgba(0, 255, 136, 0.6),
+        inset 0 0 40px rgba(0, 255, 136, 0.3);
     }
 
     .bug {
-      color: limegreen;
+      color: #00ff88;
+      filter: drop-shadow(0 0 10px #00ff88);
     }
 
-    .squashed {
-      color: lightgreen;
+    .strong-bug {
+      color: #ff6b35;
+      filter: drop-shadow(0 0 10px #ff6b35);
+    }
+
+    .bomb {
+      color: #ff4757;
+      filter: drop-shadow(0 0 10px #ff4757);
     }
 
     #game-over {
-      margin-top: 20px;
+      margin-top: 2rem;
       font-size: 1.5em;
-      color: red;
+      color: #ff4757;
+      font-weight: 700;
+      text-shadow: 0 0 20px #ff4757;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    button {
+      background: linear-gradient(45deg, #00ff88, #00d4aa);
+      color: #0c0c0c;
+      border: none;
+      border-radius: 25px;
+      padding: 15px 30px;
+      font-size: 1.1em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Orbitron', monospace;
+      box-shadow: 
+        0 8px 20px rgba(0, 255, 136, 0.3),
+        0 0 0 2px rgba(0, 255, 136, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 12px 25px rgba(0, 255, 136, 0.4),
+        0 0 0 3px rgba(0, 255, 136, 0.2);
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 
+        0 5px 15px rgba(0, 255, 136, 0.3),
+        0 0 0 2px rgba(0, 255, 136, 0.1);
+    }
+
+    #restart {
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .score-timer {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+      }
+      
+      .grid {
+        grid-gap: 3vw;
+      }
+      
+      .hole {
+        width: min(70px, 12vw);
+        height: min(70px, 12vw);
+        font-size: 1.5em;
+      }
     }
   </style>
 </head>
@@ -84,75 +232,127 @@
     <div class="hole" data-index="11"></div>
   </div>
   <div id="game-over"></div>
+  <button id="restart">Restart Game</button>
 
   <script>
-    const holes = document.querySelectorAll('.hole');
-    const scoreEl = document.getElementById('score');
-    const timerEl = document.getElementById('timer');
-    const gameOverEl = document.getElementById('game-over');
+  const holes = document.querySelectorAll('.hole');
+  const scoreEl = document.getElementById('score');
+  const timerEl = document.getElementById('timer');
+  const gameOverEl = document.getElementById('game-over');
+  const restartBtn = document.getElementById('restart');
 
-    let score = 0;
-    let timeLeft = 30;
-    let gameInterval;
-    let bugInterval;
-    let gameActive = true;
+  let score = 0;
+  let timeLeft = 30;
+  let gameInterval;
+  let bugInterval;
+  let gameActive = true;
+  let bugSpawnInterval = 1000; // Start with 1 second interval
 
-    function randomHole() {
-      return holes[Math.floor(Math.random() * holes.length)];
-    }
+  function randomHole() {
+    return holes[Math.floor(Math.random() * holes.length)];
+  }
 
-    function showBug() {
-      if (!gameActive) return;
-      const hole = randomHole();
-      if (hole.classList.contains('bug')) return;
-
+  function showBug() {
+    if (!gameActive) return;
+    const hole = randomHole();
+    if (hole.classList.contains('bug') || hole.classList.contains('strong-bug') || hole.classList.contains('bomb')) return;    // Randomly decide the type of entity
+    const randomType = Math.random();
+    if (randomType < 0.1) { // 10% chance for a strong bug
+      hole.textContent = '🪲';
+      hole.classList.add('strong-bug');
+      hole.dataset.health = 3; // Strong bug needs 3 clicks to squash
+    } else if (randomType < 0.25) { // 15% chance for a bomb
+      hole.textContent = '💣';
+      hole.classList.add('bomb');
+    } else { // 75% chance for a regular bug
       hole.textContent = '🐛';
       hole.classList.add('bug');
+    }
 
-      const hideTimer = setTimeout(() => {
-        if (hole.classList.contains('bug')) {
-          hole.textContent = '';
-          hole.classList.remove('bug');
-        }
-      }, 1000 + Math.random() * 1000);
+    const hideTimer = setTimeout(() => {
+      if (hole.classList.contains('bug') || hole.classList.contains('strong-bug') || hole.classList.contains('bomb')) {
+        hole.textContent = '';
+        hole.classList.remove('bug', 'strong-bug', 'bomb');
+        hole.removeAttribute('data-health');
+      }
+    }, 1000 + Math.random() * 1000);
 
-      hole.onclick = () => {
-        if (!hole.classList.contains('bug') || !gameActive) return;
+    hole.onclick = () => {
+      if (!gameActive) return;      if (hole.classList.contains('bug')) {
         score += 10;
         scoreEl.textContent = score;
-        hole.textContent = '💥';
+        hole.textContent = '🟢';
         hole.classList.remove('bug');
-        hole.classList.add('squashed');
         setTimeout(() => {
           hole.textContent = '';
-          hole.classList.remove('squashed');
         }, 500);
-      };
-    }
-
-    function startGame() {
-      score = 0;
-      scoreEl.textContent = score;
-      timeLeft = 30;
-      timerEl.textContent = timeLeft;
-      gameOverEl.textContent = '';
-      gameActive = true;
-
-      gameInterval = setInterval(() => {
-        timeLeft--;
-        timerEl.textContent = timeLeft;
-        if (timeLeft <= 0) {
-          clearInterval(gameInterval);
-          clearInterval(bugInterval);
-          gameActive = false;
-          gameOverEl.textContent = `Game Over! Final Score: ${score}`;
+      } else if (hole.classList.contains('strong-bug')) {
+        let health = parseInt(hole.dataset.health, 10);
+        health--;
+        if (health <= 0) {
+          score += 30; // Strong bugs give more points
+          scoreEl.textContent = score;
+          hole.textContent = '🟢';
+          hole.classList.remove('strong-bug');
+          hole.removeAttribute('data-health');
+          setTimeout(() => {
+            hole.textContent = '';
+          }, 500);
+        } else {
+          hole.dataset.health = health;
+          hole.textContent = '🪲'; // Keep the strong bug visible
         }
-      }, 1000);
+      } else if (hole.classList.contains('bomb')) {
+        score -= 20; // Bombs deduct points
+        scoreEl.textContent = score;
+        hole.textContent = '🔥';
+        hole.classList.remove('bomb');
+        setTimeout(() => {
+          hole.textContent = '';
+        }, 500);
+      }
+    };
+  }
 
-      bugInterval = setInterval(showBug, 600);
+  function adjustBugSpeed() {
+    if (bugSpawnInterval > 200) { // Minimum interval of 200ms
+      bugSpawnInterval -= 50; // Decrease interval by 50ms
+      clearInterval(bugInterval);
+      bugInterval = setInterval(showBug, bugSpawnInterval);
     }
+  }
+  function startGame() {
+    // Clear any existing intervals first
+    if (gameInterval) clearInterval(gameInterval);
+    if (bugInterval) clearInterval(bugInterval);
+    
+    score = 0;
+    scoreEl.textContent = score;
+    timeLeft = 30;
+    timerEl.textContent = timeLeft;
+    gameOverEl.textContent = '';
+    gameActive = true;
+    bugSpawnInterval = 1000; // Reset spawn interval
 
-    startGame();
+    gameInterval = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(gameInterval);
+        clearInterval(bugInterval);
+        gameActive = false;
+        gameOverEl.textContent = `Game Over! Final Score: ${score}`;
+      } else {
+        adjustBugSpeed(); // Adjust speed as time progresses
+      }
+    }, 1000);
+
+    bugInterval = setInterval(showBug, bugSpawnInterval);
+  }
+
+  restartBtn.onclick = startGame;
+
+  startGame();
   </script>
 </body>
 </html>
